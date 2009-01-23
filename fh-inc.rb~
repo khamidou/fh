@@ -1,0 +1,3 @@
+#!/usr/bin/ruby
+#
+# fh-inc - get data from the feeds refered in ~/.fh/feedlist

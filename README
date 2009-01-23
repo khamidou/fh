@@ -1,0 +1,90 @@
+fh, the feed handler                    
+
+fh is a feed reader which is designed,
+contrary to the more common feed readers,
+to be used only from the command line.
+It has no proper interface because it is
+a collection of programs that work 
+cooperatively.
+
+fh requires ruby and libfeedreader.
+
+Quick usage guide
+=================
+
+fh is for the moment, composed of three
+programs :
+fh-inc,	which downloads the feeds from
+	the internet
+
+fh-fetch, which selects feeds according
+	  to a given pattern
+
+fh-show, which display the feeds on the
+	 screen
+
+fh-fetch and fh-show are two different
+programs because I wanted to give to 
+the user the possibility of grepping an
+input feed and still to be able to read
+the whole feed.
+
+The fh-inc takes no arguments.
+And reads a file named ~/.fh/feedlist
+which contains one feed address per line.
+fh-inc fetches the corresponding feed and
+stores it in ~/.fh/feeds.
+
+Here is a list of options that can be used
+with fh-fetch:
+
+fh-fetch from date [to date]
+	 => fetches the feeds between two
+	    dates. 
+	    Note that by default, fh-fetch
+	    gets the feeds created between
+	    yesterday and today.
+
+fh-fetch feeds "posix-regexp"
+	 => selects only the feeds who match
+	    posix-regexp
+
+fh-fetch show [comma-separated-values]
+	 => display only the elements 
+	    corresponding to the specification
+	    ex:
+	    show feed-title,entry-title
+	    will display only the title of each
+	    feed and the title of each entry.
+
+	    The available values are :
+	    feed-title, entry-title, 
+	    entry-contents
+
+
+Author
+======
+
+fh was written by Karim Hamidou.
+
+Copying
+=======
+
+Copyright (c) 2009, Karim Hamidou
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+      in the documentation and/or other materials provided with the distribution.
+    * Neither the name of Karim Hamidou nor the names of its contributors may be used to endorse or promote products derived from this
+      software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+

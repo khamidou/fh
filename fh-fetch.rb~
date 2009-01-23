@@ -1,0 +1,29 @@
+#!/usr/bin/ruby
+#
+# Fetch the specified entries.
+# Arguments : fh-fetch from date [to date]
+#                     feeds *feed-name-regexp*
+# 
+
+require "Time"
+
+fh_to = Time.new()
+fh_from = fh_to - 2592000 # It's yesterday
+
+feeds = "*"
+
+ARGV.length.times do | i |
+  if (ARGV[i] == "from")
+    fh_from = Time.parse(ARGV[i+1])
+    
+  end
+  
+  if (ARGV[i] == "to")
+    fh_to = Time.parse(ARGV[i+1])
+  end
+
+  if (ARGV[i] == "feeds")
+    feeds = ARGV[i+1]
+  end
+  
+end
