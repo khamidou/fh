@@ -7,7 +7,8 @@ It has no proper interface because it is
 a collection of programs that work 
 cooperatively.
 
-fh requires ruby and libfeedreader.
+fh requires ruby and python. (I'm porting
+it to python because of universal feed parser).
 
 Quick usage guide
 =================
