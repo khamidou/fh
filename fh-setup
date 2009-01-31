@@ -1,0 +1,6 @@
+#!/bin/sh
+# Create the directories needed by fh.
+
+mkdir ~/.fh
+touch ~/.fh/feedlist
+mkdir ~/.fh/feeds
