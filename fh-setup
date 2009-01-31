@@ -1,5 +1,5 @@
 #!/bin/sh
-# Create the directories needed by fh.
+# Create the directories needed by fh. It's there only for convenience purposes.
 
 mkdir ~/.fh
 touch ~/.fh/feedlist
