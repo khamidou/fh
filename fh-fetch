@@ -14,12 +14,12 @@ import optparse
 
 fetch_params = { "feed-title": 1, "feed-summary": 1, "feed-link": 1, "entry-title": 1, "entry-subtitle": 1, "entry-link": 1, "entry-content": 1, }
 
-# Display feeds published between those dates
-#from_date = 
-#to_date = date.today()
-
 sep = "\t" # the separator used to ...separate each entry of the feed
-i = 0
+
+# Display feeds published between those dates
+
+to_date = time.gmtime(time.time())
+from_date = time.gmtime(time.time() - 86400)
 
 # date and time parsing code comes from http://www.logarithmic.net/pfh/blog/01162445830
 
@@ -56,7 +56,8 @@ def parse_date(string):
     for format in date_formats_with_year:
         try:
             result = time.strptime(string, format)
-            return datetime.date(result.tm_year, result.tm_mon, result.tm_mday)
+#            return datetime.date(result.tm_year, result.tm_mon, result.tm_mday)
+            return datetime.time(result.tm_year, result.tm_mon, result.tm_mday)
         except ValueError:
             pass
 
@@ -64,7 +65,8 @@ def parse_date(string):
         try:
             result = time.strptime(string, format)
             year = datetime.date.today().year
-            return datetime.date(year, result.tm_mon, result.tm_mday)
+            # return datetime.date(year, result.tm_mon, result.tm_mday)
+            return datetime.time(year, result.tm_mon, result.tm_mday)
         except ValueError:
             pass
             
@@ -77,7 +79,7 @@ def print_field(s):
    
 
 def main():
-    global fetch_params
+    global fetch_params, to_date, from_date
     p = optparse.OptionParser()
     p.add_option("-t", "--feed-title", action="store", dest="feed_title", help="Show feed title", default=1)
     p.add_option("-s", "--feed-summary", action="store", dest="feed_summary", help="Show feed summary", default=1)
@@ -86,14 +88,23 @@ def main():
     p.add_option("--es", "--entry-subtitle", action="store", dest="entry_subtitle", help="Show entry subtitle", default=1)
     p.add_option("--el", "--entry-link", action="store", dest="entry_link", help="Show entry link", default=1)
     p.add_option("--ec", "--entry-content", action="store", dest="entry_content", help="Show entry content", default=1)
+    p.add_option("--fd", "--from-date", action="store", dest="from_date", help="Display entries published after date", default=0)
+    p.add_option("--td", "--to-date", action="store", dest="to_date", help="Display entries published before date", default=0)
 
     options, args = p.parse_args()
+
+    if options.to_date != 0:
+        to_date = parse_date(options.to_date)
+
+    if options.from_date != 0:
+        from_date = parse_date(options.from_date)
+
    
     dir = glob.iglob(os.environ.get("HOME") + "/.fh/feeds/*")
 
     for file in dir:
         feed = feedparser.parse(file)
-
+        
         if options.feed_title:
             if feed.feed.has_key("title"):
                 print_field(feed.feed.subtitle)
@@ -107,23 +118,23 @@ def main():
                     print_field(feed.summary)
 
             for e in feed.entries:
-
-                if options.entry_title:
-                    if feed.feed.has_key("title"):
-                        print_field(e.title)
-                    
-                if options.entry_link:
-                    if feed.feed.has_key("links"):
-                        print_field(e.links[0]["href"])
-                            
-                if options.entry_subtitle:
-                    if feed.feed.has_key("description"):
-                        print_field(e.description)
-                                
-                if options.entry_content:
-                    if feed.feed.has_key("content"):
-                        print_field(e.content[0].value)
-                                
-                print "\n"
+                if e.date_parsed > from_date and e.date_parsed < to_date:
+	                if options.entry_title:
+	                    if feed.feed.has_key("title"):
+	                        print_field(e.title)
+	                    
+	                if options.entry_link:
+	                    if feed.feed.has_key("links"):
+	                        print_field(e.links[0]["href"])
+	                            
+	                if options.entry_subtitle:
+	                    if feed.feed.has_key("description"):
+	                        print_field(e.description)
+	                                
+	                if options.entry_content:
+	                    if feed.feed.has_key("content"):
+	                        print_field(e.content[0].value)
+	                                
+                        print "\n"
 if __name__ == "__main__":
     main()
