@@ -1,0 +1,128 @@
+#!/usr/bin/python
+# Fetch the specified entries.
+# Arguments : fh-fetch 	from 	date [to date]
+#                     	feeds	*feed-name-regexp*
+#			show	feed-title,entry-title,entry-contents
+
+import os
+import sys
+import glob
+import feedparser
+import time, datetime
+import getopt
+
+global fetch_params
+fetch_params = { "feed-title": 1, "feed-summary": 1, "feed-link": 1, "entry-title": 1, "entry-subtitle": 1, "entry-link": 1, "entry-content": 1, }
+
+sep = "" # the separator used to ...separate each entry of the feed
+i = 0
+
+# date and time parsing code comes from http://www.logarithmic.net/pfh/blog/01162445830
+
+time_formats = ['%H : %M', '%I : %M %p', '%H', '%I %p']
+
+date_formats_with_year = ['%d %m %Y', '%Y %m %d', '%d %B %Y', '%B %d %Y',
+                                                  '%d %b %Y', '%b %d %Y',
+                          '%d %m %y', '%y %m %d', '%d %B %y', '%B %d %y',
+                                                  '%d %b %y', '%b %d %y']
+
+date_formats_without_year = ['%d %B', '%B %d',
+                             '%d %b', '%b %d']
+
+def parse_time(string):
+    string = string.strip()
+    if not string: return None
+    
+    for format in time_formats:
+        try:
+            result = time.strptime(string, format)
+            return datetime.time(result.tm_hour, result.tm_min)
+        except ValueError:
+            pass
+            
+    raise ValueError()
+
+    
+def parse_date(string):
+    string = string.strip()
+    if not string: return None
+    
+    string = string.replace('/',' ').replace('-',' ').replace(',',' ')
+    
+    for format in date_formats_with_year:
+        try:
+            result = time.strptime(string, format)
+            return datetime.date(result.tm_year, result.tm_mon, result.tm_mday)
+        except ValueError:
+            pass
+
+    for format in date_formats_without_year:
+        try:
+            result = time.strptime(string, format)
+            year = datetime.date.today().year
+            return datetime.date(year, result.tm_mon, result.tm_mday)
+        except ValueError:
+            pass
+            
+    raise ValueError()
+
+
+def print_field(field):
+	print field.encode("utf8").rstrip("\n")
+	print sep
+
+def main():
+
+    if len(sys.argv) > 1:
+        try:
+            fetch_params = { }
+            opts, args = getopt.getopt(sys.argv[1:], "tsl", ["title", "subtitle", "link",])
+        except getopt.GetoptError, err:
+            print str(err)
+            sys.exit(2)
+            
+            for o, a in opts:
+                if o in ("-t", "--title"):
+                    fetch_params["feed-title"] = 1
+                elif o in ("-s", "--summary"):
+                    fetch_params["feed-summary"] = 1
+                elif o in ("-l", "--link"):
+                    fetch_params["feed-link"] = 1
+                else:
+                    assert False, "unhandled option"
+		
+
+    dir = glob.iglob(os.environ.get("HOME") + "/.fh/feeds/*")
+
+    for file in dir:
+        feed = feedparser.parse(file)
+        
+        if fetch_params["feed-title"]:
+            if feed.feed.has_key("title"):
+                print_field(feed.feed.subtitle)
+
+ 		if fetch_params["feed-summary"]:
+                    if feed.feed.has_key("sumary"):
+                        print_field(feed.summary)
+
+
+            for e in feed.entries:
+
+                if fetch_params["entry-subtitle"]:
+                    print_field(e.title)
+                    
+                if fetch_params["entry-link"]:
+                    if feed.feed.has_key("links"):
+                        print_field(e.links[0]["href"])
+                            
+                if fetch_params["entry-subtitle"]:
+                    if feed.feed.has_key("description"):
+                        print_field(e.description)
+                                
+                if fetch_params["entry-content"]:
+                    if feed.feeds.has_key("content"):
+                        print_field(e.content[0].value)
+                                
+			print "\n"
+if __name__ == "__main__":
+    main()
