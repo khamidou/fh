@@ -9,12 +9,16 @@ import sys
 import glob
 import feedparser
 import time, datetime
-import getopt
+import optparse
 
 
 fetch_params = { "feed-title": 1, "feed-summary": 1, "feed-link": 1, "entry-title": 1, "entry-subtitle": 1, "entry-link": 1, "entry-content": 1, }
 
-sep = "" # the separator used to ...separate each entry of the feed
+# Display feeds published between those dates
+#from_date = 
+#to_date = date.today()
+
+sep = "\t" # the separator used to ...separate each entry of the feed
 i = 0
 
 # date and time parsing code comes from http://www.logarithmic.net/pfh/blog/01162445830
@@ -67,63 +71,59 @@ def parse_date(string):
     raise ValueError()
 
 
-def print_field(field):
-	print field.encode("utf8").rstrip("\n")
-	print sep
+def print_field(s):
+    sys.stdout.write(s.encode("utf8").replace('\n', '\t').strip())
+    sys.stdout.write(sep)
+   
 
 def main():
     global fetch_params
+    p = optparse.OptionParser()
+    p.add_option("-t", "--feed-title", action="store", dest="feed_title", help="Show feed title", default=1)
+    p.add_option("-s", "--feed-summary", action="store", dest="feed_summary", help="Show feed summary", default=1)
+    p.add_option("-l", "--feed-link", action="store", dest="feed_link", help="Show feed link", default=1)
+    p.add_option("--et", "--entry-title", action="store", dest="entry_title", help="Show entry title", default=1)
+    p.add_option("--es", "--entry-subtitle", action="store", dest="entry_subtitle", help="Show entry subtitle", default=1)
+    p.add_option("--el", "--entry-link", action="store", dest="entry_link", help="Show entry link", default=1)
+    p.add_option("--ec", "--entry-content", action="store", dest="entry_content", help="Show entry content", default=1)
 
-    if len(sys.argv) > 1:
-        try:
-            fetch_params = { }
-            opts, args = getopt.getopt(sys.argv[1:], "tsl", ["title", "subtitle", "link",])
-        except getopt.GetoptError, err:
-            print str(err)
-            sys.exit(2)
-            
-            for o, a in opts:
-                if o in ("-t", "--title"):
-                    fetch_params["feed-title"] = 1
-                elif o in ("-s", "--summary"):
-                    fetch_params["feed-summary"] = 1
-                elif o in ("-l", "--link"):
-                    fetch_params["feed-link"] = 1
-                else:
-                    assert False, "unhandled option"
-		
-
+    options, args = p.parse_args()
+   
     dir = glob.iglob(os.environ.get("HOME") + "/.fh/feeds/*")
 
     for file in dir:
         feed = feedparser.parse(file)
 
-        if fetch_params["feed-title"]:
+        if options.feed_title:
             if feed.feed.has_key("title"):
                 print_field(feed.feed.subtitle)
 
- 		if fetch_params["feed-summary"]:
-                    if feed.feed.has_key("summary"):
-                        print_field(feed.summary)
+            if options.feed_link:
+                if feed.feed.has_key("link"):
+                    print_field(feed.feed.link)
 
+            if options.feed_summary:
+                if feed.feed.has_key("summary"):
+                    print_field(feed.summary)
 
             for e in feed.entries:
 
-                if fetch_params["entry-subtitle"]:
-                    print_field(e.title)
+                if options.entry_title:
+                    if feed.feed.has_key("title"):
+                        print_field(e.title)
                     
-                if fetch_params["entry-link"]:
+                if options.entry_link:
                     if feed.feed.has_key("links"):
                         print_field(e.links[0]["href"])
                             
-                if fetch_params["entry-subtitle"]:
+                if options.entry_subtitle:
                     if feed.feed.has_key("description"):
                         print_field(e.description)
                                 
-                if fetch_params["entry-content"]:
+                if options.entry_content:
                     if feed.feed.has_key("content"):
                         print_field(e.content[0].value)
                                 
-			print "\n"
+                print "\n"
 if __name__ == "__main__":
     main()
