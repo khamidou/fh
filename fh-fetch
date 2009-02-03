@@ -15,6 +15,7 @@ import optparse
 fetch_params = { "feed-title": 1, "feed-summary": 1, "feed-link": 1, "entry-title": 1, "entry-subtitle": 1, "entry-link": 1, "entry-content": 1, }
 
 sep = "\t" # the separator used to ...separate each entry of the feed
+pattern = "*"
 
 # Display feeds published between those dates
 
@@ -79,7 +80,8 @@ def print_field(s):
    
 
 def main():
-    global fetch_params, to_date, from_date
+    global fetch_params, to_date, from_date, pattern
+
     p = optparse.OptionParser()
     p.add_option("-t", "--feed-title", action="store", dest="feed_title", help="Show feed title", default=1)
     p.add_option("-s", "--feed-summary", action="store", dest="feed_summary", help="Show feed summary", default=1)
@@ -90,6 +92,7 @@ def main():
     p.add_option("--ec", "--entry-content", action="store", dest="entry_content", help="Show entry content", default=1)
     p.add_option("--fd", "--from-date", action="store", dest="from_date", help="Display entries published after date", default=0)
     p.add_option("--td", "--to-date", action="store", dest="to_date", help="Display entries published before date", default=0)
+    p.add_option("--p", "--pattern", action="store", dest="pattern", help="Display entries matching the following url pattern", default="*")
 
     options, args = p.parse_args()
 
@@ -99,8 +102,11 @@ def main():
     if options.from_date != 0:
         from_date = parse_date(options.from_date)
 
-   
-    dir = glob.iglob(os.environ.get("HOME") + "/.fh/feeds/*")
+    if options.pattern != "*":
+        pattern = options.pattern
+        print pattern
+        print "globbing " + os.environ.get("HOME") + "/.fh/feeds/" + pattern
+    dir = glob.iglob(os.environ.get("HOME") + "/.fh/feeds/" + pattern)
 
     for file in dir:
         feed = feedparser.parse(file)
