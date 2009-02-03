@@ -83,16 +83,18 @@ def main():
     global fetch_params, to_date, from_date, pattern
 
     p = optparse.OptionParser()
-    p.add_option("-t", "--feed-title", action="store", dest="feed_title", help="Show feed title", default=1)
-    p.add_option("-s", "--feed-summary", action="store", dest="feed_summary", help="Show feed summary", default=1)
-    p.add_option("-l", "--feed-link", action="store", dest="feed_link", help="Show feed link", default=1)
-    p.add_option("--et", "--entry-title", action="store", dest="entry_title", help="Show entry title", default=1)
-    p.add_option("--es", "--entry-subtitle", action="store", dest="entry_subtitle", help="Show entry subtitle", default=1)
-    p.add_option("--el", "--entry-link", action="store", dest="entry_link", help="Show entry link", default=1)
-    p.add_option("--ec", "--entry-content", action="store", dest="entry_content", help="Show entry content", default=1)
-    p.add_option("--fd", "--from-date", action="store", dest="from_date", help="Display entries published after date", default=0)
-    p.add_option("--td", "--to-date", action="store", dest="to_date", help="Display entries published before date", default=0)
-    p.add_option("--p", "--pattern", action="store", dest="pattern", help="Display entries matching the following url pattern", default="*")
+    p.add_option("-t",    "--feed-title", action="store", dest="feed_title", help="Show feed title", default=1)
+    p.add_option("-s",    "--feed-summary", action="store", dest="feed_summary", help="Show feed summary", default=1)
+    p.add_option("-l",    "--feed-link", action="store", dest="feed_link", help="Show feed link", default=1)
+    p.add_option("--et",  "--entry-title", action="store", dest="entry_title", help="Show entry title", default=1)
+    p.add_option("--es",  "--entry-subtitle", action="store", dest="entry_subtitle", help="Show entry subtitle", default=1)
+    p.add_option("--el",  "--entry-link", action="store", dest="entry_link", help="Show entry link", default=1)
+    p.add_option("--ec",  "--entry-content", action="store", dest="entry_content", help="Show entry content", default=1)
+    p.add_option("--eca", "--entry-category", action="store", dest="entry_category", help="Show entry category", default=1)
+    p.add_option("--fd",  "--from-date", action="store", dest="from_date", help="Display entries published after date", default=0)
+    p.add_option("--fe",  "--from-epoch", action="store_true", dest="from_epoch", help="Display all the entries in the feed",)
+    p.add_option("--td",  "--to-date", action="store", dest="to_date", help="Display entries published before date", default=0)
+    p.add_option("-p",    "--pattern", action="store", dest="pattern", help="Display entries matching the following url pattern", default="*")
 
     options, args = p.parse_args()
 
@@ -102,10 +104,12 @@ def main():
     if options.from_date != 0:
         from_date = parse_date(options.from_date)
 
+    if options.from_epoch:
+        from_date = time.gmtime(0)
+
     if options.pattern != "*":
         pattern = options.pattern
-        print pattern
-        print "globbing " + os.environ.get("HOME") + "/.fh/feeds/" + pattern
+
     dir = glob.iglob(os.environ.get("HOME") + "/.fh/feeds/" + pattern)
 
     for file in dir:
@@ -115,32 +119,39 @@ def main():
             if feed.feed.has_key("title"):
                 print_field(feed.feed.subtitle)
 
-            if options.feed_link:
+        if options.feed_link:
                 if feed.feed.has_key("link"):
                     print_field(feed.feed.link)
 
-            if options.feed_summary:
+        if options.feed_summary:
                 if feed.feed.has_key("summary"):
                     print_field(feed.summary)
+            
+        print "\n"
 
-            for e in feed.entries:
-                if e.date_parsed > from_date and e.date_parsed < to_date:
-	                if options.entry_title:
-	                    if feed.feed.has_key("title"):
-	                        print_field(e.title)
-	                    
-	                if options.entry_link:
-	                    if feed.feed.has_key("links"):
-	                        print_field(e.links[0]["href"])
-	                            
-	                if options.entry_subtitle:
-	                    if feed.feed.has_key("description"):
-	                        print_field(e.description)
-	                                
-	                if options.entry_content:
-	                    if feed.feed.has_key("content"):
-	                        print_field(e.content[0].value)
-	                                
+        for e in feed.entries:
+            if e.date_parsed > from_date and e.date_parsed < to_date:
+                if options.entry_title:
+                    if feed.feed.has_key("title"):
+                        print_field(e.title)
+                        
+                if options.entry_link:
+                        if feed.feed.has_key("links"):
+                            print_field(e.links[0]["href"])
+                                
+                if options.entry_subtitle:
+                        if feed.feed.has_key("description"):
+                            print_field(e.description)
+
+                if options.entry_category:
+                        if feed.feed.has_key("category"):
+                            print_field(e.category)
+                                
+                if options.entry_content:
+                        if feed.feed.has_key("content"):
+                            print_field(e.content[0].value)
+                                
                         print "\n"
+
 if __name__ == "__main__":
     main()
