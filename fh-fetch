@@ -12,8 +12,6 @@ import time, datetime
 import optparse
 
 
-fetch_params = { "feed-title": 1, "feed-summary": 1, "feed-link": 1, "entry-title": 1, "entry-subtitle": 1, "entry-link": 1, "entry-content": 1, }
-
 sep = "\t" # the separator used to ...separate each entry of the feed
 pattern = "*"
 
@@ -80,7 +78,7 @@ def print_field(s):
    
 
 def main():
-    global fetch_params, to_date, from_date, pattern
+    global to_date, from_date, pattern
 
     p = optparse.OptionParser()
     p.add_option("-t",    "--feed-title", action="store", dest="feed_title", help="Show feed title", default=1)

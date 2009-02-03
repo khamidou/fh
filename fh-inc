@@ -1,29 +1,26 @@
-#!/usr/bin/ruby
+#!/usr/bin/python
 #
-# fh-inc - get data from the feeds refered in ~/.fh/feedlist
 
-require 'net/http'
-require 'uri'
+import urllib2
+import os
 
-fd = File.new(ENV["HOME"] + "/.fh/feedlist")
+fd = open(os.environ.get("HOME") + "/.fh/feedlist", "r")
 
-counter = 0
+if fd == -1:
+   print "error : unable to find ~/.fh/feedlist. You should probably run fh-setup"
+   os.exit()
 
-fd.each_line do |line|
-  line = line.chomp
-  if line != ""
-    s = Net::HTTP::get URI::parse(line)
-    
-    # Each file is named according to the url of the feed.
-    fname = line.gsub("http://", "")
-    fname.gsub!("/", "-")
+i = 0
 
-    File.open(ENV["HOME"] + "/.fh/feeds/" + fname, "w+") do |ff|
-      ff.write(s)
-    end
+for line in fd.readlines():
+    request = urllib2.Request(url = line.rstrip())
+    feed = urllib2.urlopen(request).read()
 
-    counter += 1
-  end
-end
+    fname = line.replace("http://", "")
+    fname = fname.replace("/", "-")
+    fname = fname.replace('\n', '')
+    feedfd = open(os.environ.get("HOME") + "/.fh/feeds/" + fname, "w+")
+    feedfd.write(feed)
+    i += 1
 
-print "Fetched ", counter, " feeds\n"
+print "Fetched ", i, " feed(s)"
