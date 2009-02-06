@@ -74,15 +74,15 @@ def parse_date(string):
 
 
 def print_field(s):
-    sys.stdout.write(s.encode("utf8").replace('\n', '\t').strip())
-    sys.stdout.write(sep)
+	try:
+	    sys.stdout.write(s.encode("utf8").replace('\n', '\t').strip())
+	    sys.stdout.write(sep)
    
+	except IOError:
+		sys.exit(1)
 
 def main():
     global to_date, from_date, pattern
-
-    # handle gracefully SIGPIPE
-    signal(signal.SIGPIPE, os.exit)
 
     p = optparse.OptionParser()
     p.add_option("-t",    "--feed-title", action="store", dest="feed_title", help="Show feed title", default=1)
